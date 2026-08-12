@@ -1,0 +1,88 @@
+Sample console transcript
+==========================
+(User input is shown after each prompt for readability; when run
+interactively, the console simply waits at "Enter your guess:" /
+"Would you like to play again? (Y/N):" for the player to type.)
+
+==================================
+        NUMBER GUESSING GAME
+==================================
+
+Guess a number between 1 and 100.
+
+Attempt 1 of 10
+Enter your guess: xyz
+Invalid input! Please enter a whole number.
+
+Enter your guess: 50
+
+Too High!
+
+Attempts Remaining: 9
+
+Attempt 2 of 10
+Enter your guess: 20
+
+Too Low!
+
+Attempts Remaining: 8
+
+Attempt 3 of 10
+Enter your guess: 40
+
+Too High!
+
+Attempts Remaining: 7
+
+Attempt 4 of 10
+Enter your guess: 37
+
+Congratulations!
+You guessed the correct number.
+
+Attempts Used : 4
+Round Score   : 70
+
+Would you like to play again? (Y/N): y
+==================================
+        NUMBER GUESSING GAME
+==================================
+
+Guess a number between 1 and 100.
+
+Attempt 1 of 10
+Enter your guess: 80
+
+Too High!
+
+Attempts Remaining: 9
+
+Attempt 2 of 10
+Enter your guess: 60
+
+Too Low!
+
+Attempts Remaining: 8
+
+Attempt 3 of 10
+Enter your guess: 65
+
+Congratulations!
+You guessed the correct number.
+
+Attempts Used : 3
+Round Score   : 80
+
+Would you like to play again? (Y/N): n
+
+==================================
+            GAME SUMMARY
+==================================
+Total Rounds Played : 2
+Total Rounds Won     : 2
+Total Rounds Lost    : 0
+Highest Score         : 80
+Overall Score         : 150
+==================================
+Thank you for playing the Number Guessing Game!
+==================================
