@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Manage Questions')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container" th:data-quiz-id="${quizId}" id="pageRoot">
+    <a href="/admin/quizzes" class="text-decoration-none text-secondary small">&larr; Back to quizzes</a>
+    <div class="d-flex justify-content-between align-items-center my-3 flex-wrap gap-2">
+        <div>
+            <p class="section-eyebrow mb-1" id="quizTitle">Quiz</p>
+            <h1 class="mb-0">Questions</h1>
+        </div>
+        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#qModal" onclick="openCreateModal()">+ Add question</button>
+    </div>
+    <div id="alertBox"></div>
+
+    <div id="questionList"></div>
+    <div id="emptyState" class="empty-state d-none">
+        <h5>No questions yet</h5>
+        <p class="mb-0">Add your first question to this quiz.</p>
+    </div>
+</div>
+
+<!-- Create / edit question modal -->
+<div class="modal fade" id="qModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qModalTitle">New question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="qForm">
+                <div class="modal-body">
+                    <div id="modalAlert"></div>
+                    <input type="hidden" id="questionId">
+                    <div class="mb-3">
+                        <label class="form-label">Question text</label>
+                        <textarea class="form-control" id="questionText" rows="2" required></textarea>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Option A</label>
+                            <input type="text" class="form-control" id="optionA" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Option B</label>
+                            <input type="text" class="form-control" id="optionB" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Option C</label>
+                            <input type="text" class="form-control" id="optionC" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Option D</label>
+                            <input type="text" class="form-control" id="optionD" required>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Correct option</label>
+                            <select class="form-select" id="correctOption" required>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Marks</label>
+                            <input type="number" min="1" class="form-control" id="marks" value="1" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-ink">Save question</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+const quizId = document.getElementById('pageRoot').dataset.quizId;
+let qModal, currentQuestions = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    qModal = new bootstrap.Modal(document.getElementById('qModal'));
+});
+
+function openCreateModal() {
+    document.getElementById('qModalTitle').textContent = 'New question';
+    document.getElementById('qForm').reset();
+    document.getElementById('questionId').value = '';
+    document.getElementById('marks').value = 1;
+    document.getElementById('modalAlert').innerHTML = '';
+}
+
+function openEditModal(id) {
+    const q = currentQuestions.find(x => x.id === id);
+    if (!q) return;
+    document.getElementById('qModalTitle').textContent = 'Edit question';
+    document.getElementById('questionId').value = q.id;
+    document.getElementById('questionText').value = q.questionText;
+    document.getElementById('optionA').value = q.optionA;
+    document.getElementById('optionB').value = q.optionB;
+    document.getElementById('optionC').value = q.optionC;
+    document.getElementById('optionD').value = q.optionD;
+    document.getElementById('correctOption').value = q.correctOption;
+    document.getElementById('marks').value = q.marks;
+    document.getElementById('modalAlert').innerHTML = '';
+    qModal.show();
+}
+
+document.getElementById('qForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('questionId').value;
+    const payload = {
+        questionText: document.getElementById('questionText').value.trim(),
+        optionA: document.getElementById('optionA').value.trim(),
+        optionB: document.getElementById('optionB').value.trim(),
+        optionC: document.getElementById('optionC').value.trim(),
+        optionD: document.getElementById('optionD').value.trim(),
+        correctOption: document.getElementById('correctOption').value,
+        marks: Number(document.getElementById('marks').value),
+    };
+    try {
+        if (id) {
+            await Api.put(`/api/admin/quizzes/questions/${id}`, payload);
+        } else {
+            await Api.post(`/api/admin/quizzes/${quizId}/questions`, payload);
+        }
+        qModal.hide();
+        loadQuestions();
+    } catch (err) {
+        const details = err.details && err.details.length ? ': ' + err.details.join(', ') : '';
+        document.getElementById('modalAlert').innerHTML =
+            `<div class="alert alert-danger">${escapeHtml((err.message || 'Save failed') + details)}</div>`;
+    }
+});
+
+async function deleteQuestion(id) {
+    if (!confirm('Delete this question?')) return;
+    try {
+        await Api.del(`/api/admin/quizzes/questions/${id}`);
+        loadQuestions();
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not delete question');
+    }
+}
+
+async function loadQuestions() {
+    try {
+        const [quiz, questions] = await Promise.all([
+            Api.get(`/api/quizzes/${quizId}`),
+            Api.get(`/api/admin/quizzes/${quizId}/questions`),
+        ]);
+        currentQuestions = questions;
+        document.getElementById('quizTitle').textContent = quiz.title;
+
+        if (!questions.length) {
+            document.getElementById('emptyState').classList.remove('d-none');
+            document.getElementById('questionList').innerHTML = '';
+            return;
+        }
+        document.getElementById('emptyState').classList.add('d-none');
+        document.getElementById('questionList').innerHTML = questions.map((q, i) => `
+            <div class="card-paper p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="question-number-badge mb-2 d-inline-block">Q${i + 1} &middot; ${q.marks} mark${q.marks === 1 ? '' : 's'}</span>
+                        <h6 class="mb-2">${escapeHtml(q.questionText)}</h6>
+                    </div>
+                    <div class="text-nowrap">
+                        <button class="btn btn-sm btn-outline-ink" onclick="openEditModal(${q.id})">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteQuestion(${q.id})">Delete</button>
+                    </div>
+                </div>
+                <div class="row g-2 mt-1 small">
+                    ${['A', 'B', 'C', 'D'].map(k => `
+                        <div class="col-md-6">
+                            <span class="${q.correctOption === k ? 'text-success fw-bold' : 'text-secondary'}">
+                                ${k}. ${escapeHtml(q['option' + k])} ${q.correctOption === k ? '✓' : ''}
+                            </span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not load questions');
+    }
+}
+loadQuestions();
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Leaderboard')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container" style="max-width: 720px;">
+    <p class="section-eyebrow mb-1">Top performers</p>
+    <h1 class="mb-4">Leaderboard</h1>
+    <div id="alertBox"></div>
+
+    <div class="card-paper p-0 d-none" id="tableCard">
+        <table class="table mb-0 align-middle">
+            <thead>
+                <tr class="text-secondary small text-uppercase">
+                    <th class="ps-4">Rank</th>
+                    <th>Student</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody id="board"></tbody>
+        </table>
+    </div>
+
+    <div id="emptyState" class="empty-state d-none">
+        <h5>No results yet</h5>
+        <p class="mb-0">Be the first to complete a quiz and claim the top spot.</p>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+(async function () {
+    try {
+        const board = await Api.get('/api/leaderboard');
+        if (!board.length) {
+            document.getElementById('emptyState').classList.remove('d-none');
+            return;
+        }
+        document.getElementById('tableCard').classList.remove('d-none');
+        document.getElementById('board').innerHTML = board.map(e => `
+            <tr>
+                <td class="ps-4"><span class="rank-badge ${e.rank === 1 ? 'top1' : e.rank === 2 ? 'top2' : e.rank === 3 ? 'top3' : ''}">${e.rank}</span></td>
+                <td class="fw-semibold">${escapeHtml(e.studentName)}</td>
+                <td class="text-mono">${e.score}/${e.totalMarks}</td>
+                <td class="text-mono">${e.percentage}%</td>
+                <td class="text-mono">${formatSeconds(e.timeTakenInSeconds)}</td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not load the leaderboard');
+    }
+})();
+</script>
+</body>
+</html>

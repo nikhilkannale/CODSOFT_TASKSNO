@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Quizzes')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container">
+    <p class="section-eyebrow mb-1">Available now</p>
+    <h1 class="mb-4">Pick a quiz</h1>
+    <div id="alertBox"></div>
+    <div id="quizList" class="row g-4"></div>
+    <div id="emptyState" class="empty-state d-none">
+        <h5>No quizzes are available right now</h5>
+        <p class="mb-0">Check back later — your instructor may be preparing new ones.</p>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+async function loadQuizzes() {
+    try {
+        const quizzes = await Api.get('/api/quizzes');
+        const list = document.getElementById('quizList');
+        if (!quizzes.length) {
+            document.getElementById('emptyState').classList.remove('d-none');
+            return;
+        }
+        list.innerHTML = quizzes.map(q => `
+            <div class="col-md-6 col-lg-4">
+                <div class="card-paper card-hover h-100 p-4 d-flex flex-column">
+                    <p class="card-eyebrow mb-2">${q.questionCount} question${q.questionCount === 1 ? '' : 's'} &middot; ${q.totalMarks} marks</p>
+                    <h4>${escapeHtml(q.title)}</h4>
+                    <p class="text-secondary flex-grow-1">${escapeHtml(q.description || '')}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="stopwatch"><span class="dot"></span><span class="timer-display">${formatSeconds(q.durationInSeconds)}</span></span>
+                        <a href="/quiz/${q.id}" class="btn btn-ink">Start quiz</a>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not load quizzes');
+    }
+}
+loadQuizzes();
+</script>
+</body>
+</html>

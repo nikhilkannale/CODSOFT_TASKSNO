@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Log in')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card-paper p-4 p-md-5">
+                <p class="section-eyebrow mb-1">Welcome back</p>
+                <h2 class="mb-4">Log in</h2>
+                <div id="alertBox"></div>
+                <form id="loginForm" novalidate>
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="password">Password</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-ink w-100 py-2" id="submitBtn">Log in</button>
+                </form>
+                <p class="text-center text-secondary mt-4 mb-0">
+                    No account yet? <a href="/register">Create one</a>
+                </p>
+                <p class="text-center text-secondary small mt-2 mb-0">
+                    Demo admin: <span class="text-mono">admin&#64;quizapp.com</span> / <span class="text-mono">Admin&#64;123</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Logging in…';
+    try {
+        const me = await Api.post('/api/auth/login', {
+            email: document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value,
+        });
+        location.href = me.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard';
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Invalid email or password');
+        btn.disabled = false;
+        btn.textContent = 'Log in';
+    }
+});
+</script>
+</body>
+</html>

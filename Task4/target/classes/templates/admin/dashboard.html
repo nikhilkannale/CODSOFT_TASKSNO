@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Admin Dashboard')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container">
+    <p class="section-eyebrow mb-1">Admin</p>
+    <h1 class="mb-4">Dashboard</h1>
+    <div id="alertBox"></div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card-paper p-4 text-center">
+                <div class="stat-figure" id="statQuizzes">—</div>
+                <div class="text-secondary small">Quizzes</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-paper p-4 text-center">
+                <div class="stat-figure" id="statUsers">—</div>
+                <div class="text-secondary small">Registered users</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-paper p-4 text-center">
+                <div class="stat-figure" id="statAttempts">—</div>
+                <div class="text-secondary small">Attempts submitted</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card-paper p-4 text-center">
+                <div class="stat-figure" id="statAvg">—</div>
+                <div class="text-secondary small">Average score</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <a href="/admin/quizzes" class="card-paper card-hover d-block p-4 text-decoration-none">
+                <h5>Manage quizzes</h5>
+                <p class="text-secondary mb-0">Create, edit, delete quizzes and their questions.</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/admin/users" class="card-paper card-hover d-block p-4 text-decoration-none">
+                <h5>Registered users</h5>
+                <p class="text-secondary mb-0">View every student who has signed up.</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/admin/results" class="card-paper card-hover d-block p-4 text-decoration-none">
+                <h5>Quiz results</h5>
+                <p class="text-secondary mb-0">Review every submitted attempt.</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+(async function () {
+    try {
+        const [quizzes, users, results] = await Promise.all([
+            Api.get('/api/admin/quizzes'),
+            Api.get('/api/admin/users'),
+            Api.get('/api/admin/results'),
+        ]);
+        document.getElementById('statQuizzes').textContent = quizzes.length;
+        document.getElementById('statUsers').textContent = users.length;
+        document.getElementById('statAttempts').textContent = results.length;
+        const avg = results.length
+            ? (results.reduce((sum, r) => sum + r.percentage, 0) / results.length).toFixed(1) + '%'
+            : '—';
+        document.getElementById('statAvg').textContent = avg;
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not load dashboard stats');
+    }
+})();
+</script>
+</body>
+</html>
