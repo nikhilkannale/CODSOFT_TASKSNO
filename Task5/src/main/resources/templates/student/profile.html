@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('My Profile')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container my-5">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+    <h2 class="fw-bold mb-4">My Profile</h2>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card p-4 text-center">
+                <img th:if="${student.profilePictureUrl}" th:src="@{${student.profilePictureUrl}}" class="rounded-circle mx-auto mb-3" style="width:120px;height:120px;object-fit:cover;">
+                <i th:unless="${student.profilePictureUrl}" class="fa-solid fa-circle-user fa-8x text-secondary mb-3"></i>
+                <h5 th:text="${student.fullName}"></h5>
+                <p class="text-muted small" th:text="${student.studentId}"></p>
+                <form th:action="@{/student/profile/picture}" method="post" enctype="multipart/form-data" class="mt-2">
+                    <input type="file" name="file" accept="image/*" class="form-control form-control-sm mb-2">
+                    <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fa-solid fa-upload me-1"></i>Upload Picture</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-3">Update Details</h5>
+                <form th:action="@{/student/profile}" th:object="${updateRequest}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" th:field="*{fullName}" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" th:field="*{email}" class="form-control">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-7 mb-3">
+                            <label class="form-label">Department</label>
+                            <input type="text" th:field="*{department}" class="form-control">
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label">Semester</label>
+                            <input type="number" th:field="*{semester}" class="form-control">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i>Save Changes</button>
+                </form>
+            </div>
+
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3">Change Password</h5>
+                <form th:action="@{/student/profile/change-password}" th:object="${changePasswordRequest}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" th:field="*{currentPassword}" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <input type="password" th:field="*{newPassword}" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-key me-1"></i>Update Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>

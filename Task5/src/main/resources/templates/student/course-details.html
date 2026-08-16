@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${course.title})}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container my-5">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <a th:href="@{/student/courses}" class="text-decoration-none mb-3 d-inline-block"><i class="fa-solid fa-arrow-left me-1"></i>Back to courses</a>
+
+    <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+                <span class="badge bg-secondary mb-2" th:text="${course.courseCode}"></span>
+                <h2 class="fw-bold" th:text="${course.title}"></h2>
+            </div>
+            <span class="badge fs-6" th:classappend="${course.availableSeats > 0} ? 'badge-seats-open' : 'badge-seats-full'"
+                  th:text="${course.availableSeats} + ' / ' + ${course.capacity} + ' seats available'"></span>
+        </div>
+
+        <p class="text-muted mt-3" th:text="${course.description} ?: 'No description provided.'"></p>
+
+        <div class="row g-3 mt-2">
+            <div class="col-md-4"><i class="fa-solid fa-chalkboard-user me-2 text-primary"></i>Instructor: <span th:text="${course.instructor} ?: 'TBA'"></span></div>
+            <div class="col-md-4"><i class="fa-solid fa-building me-2 text-primary"></i>Department: <span th:text="${course.department} ?: 'General'"></span></div>
+            <div class="col-md-4"><i class="fa-solid fa-layer-group me-2 text-primary"></i>Semester: <span th:text="${course.semester} ?: '-'"></span></div>
+            <div class="col-md-4"><i class="fa-solid fa-clock me-2 text-primary"></i>Schedule: <span th:text="${course.schedule} ?: 'TBA'"></span></div>
+        </div>
+
+        <div class="mt-4">
+            <div th:if="${alreadyEnrolled}" class="alert alert-info mb-0"><i class="fa-solid fa-circle-check me-2"></i>You are already registered for this course. Manage it from <a th:href="@{/student/my-courses}">My Courses</a>.</div>
+
+            <form th:if="${!alreadyEnrolled}" th:action="@{'/student/courses/' + ${course.id} + '/register'}" method="post">
+                <button type="submit" class="btn btn-primary btn-lg" th:disabled="${course.availableSeats <= 0}">
+                    <i class="fa-solid fa-clipboard-check me-2"></i>
+                    <span th:text="${course.availableSeats > 0} ? 'Register for this Course' : 'Course Full'"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

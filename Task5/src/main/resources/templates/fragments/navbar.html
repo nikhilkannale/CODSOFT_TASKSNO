@@ -1,0 +1,44 @@
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" th:href="@{/}"><i class="fa-solid fa-graduation-cap me-2"></i>SCRS</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMain">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/}">Home</a>
+                </li>
+
+                <th:block sec:authorize="hasRole('STUDENT')">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/student/dashboard}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/student/courses}">Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/student/my-courses}">My Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/student/profile}">Profile</a></li>
+                </th:block>
+
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/courses}">Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/students}">Students</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/registrations}">Registrations</a></li>
+                </th:block>
+
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Login</a>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="btn btn-warning btn-sm ms-lg-2 px-3 fw-semibold" th:href="@{/register}">Sign Up</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <span class="nav-link text-white-50" sec:authentication="name"></span>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-light btn-sm ms-lg-2">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

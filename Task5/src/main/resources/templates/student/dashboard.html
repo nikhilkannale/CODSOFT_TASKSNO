@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Student Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container my-5">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <h2 class="fw-bold mb-1">Welcome back, <span th:text="${student.fullName}">Student</span> 👋</h2>
+    <p class="text-muted mb-4">Student ID: <span th:text="${student.studentId}"></span> &middot; <span th:text="${student.department} ?: 'No department set'"></span></p>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card p-4 text-center">
+                <i class="fa-solid fa-book fa-2x text-primary mb-2"></i>
+                <h3 class="fw-bold" th:text="${activeCount}">0</h3>
+                <p class="text-muted mb-0">Active Enrollments</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card p-4 text-center">
+                <i class="fa-solid fa-list fa-2x text-info mb-2"></i>
+                <h3 class="fw-bold" th:text="${availableCourses}">0</h3>
+                <p class="text-muted mb-0">Total Courses Offered</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card p-4 text-center">
+                <a th:href="@{/student/courses}" class="btn btn-primary btn-lg mt-2"><i class="fa-solid fa-magnifying-glass me-2"></i>Browse Courses</a>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="fw-bold mb-3">Your Active Courses</h4>
+    <div class="table-responsive" th:if="${not #lists.isEmpty(enrollments)}">
+        <table class="table table-hover align-middle bg-white">
+            <thead><tr><th>Code</th><th>Title</th><th>Schedule</th><th>Enrolled On</th></tr></thead>
+            <tbody>
+            <tr th:each="e : ${enrollments}">
+                <td th:text="${e.course.courseCode}"></td>
+                <td th:text="${e.course.title}"></td>
+                <td th:text="${e.course.schedule}"></td>
+                <td th:text="${#temporals.format(e.enrollmentDate, 'dd MMM yyyy')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted" th:if="${#lists.isEmpty(enrollments)}">You haven't registered for any courses yet. <a th:href="@{/student/courses}">Browse available courses</a>.</p>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>

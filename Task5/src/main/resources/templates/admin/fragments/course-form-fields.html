@@ -1,0 +1,43 @@
+<div th:fragment="fields" xmlns:th="http://www.thymeleaf.org">
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Course Code</label>
+            <input type="text" th:field="*{courseCode}" class="form-control" placeholder="CS101">
+            <div class="text-danger small" th:if="${#fields.hasErrors('courseCode')}" th:errors="*{courseCode}"></div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" th:field="*{title}" class="form-control" placeholder="Introduction to Programming">
+            <div class="text-danger small" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea th:field="*{description}" class="form-control" rows="3" placeholder="Course description..."></textarea>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Instructor</label>
+            <input type="text" th:field="*{instructor}" class="form-control" placeholder="Dr. Smith">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Department</label>
+            <input type="text" th:field="*{department}" class="form-control" placeholder="Computer Science">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Semester</label>
+            <input type="number" th:field="*{semester}" class="form-control" min="1" max="12">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Capacity</label>
+            <input type="number" th:field="*{capacity}" class="form-control" min="1">
+            <div class="text-danger small" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}"></div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Schedule</label>
+            <input type="text" th:field="*{schedule}" class="form-control" placeholder="Mon/Wed 10:00-11:30">
+        </div>
+    </div>
+</div>

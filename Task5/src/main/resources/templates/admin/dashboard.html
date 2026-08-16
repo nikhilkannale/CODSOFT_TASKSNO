@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Admin Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container my-5">
+    <h2 class="fw-bold mb-4"><i class="fa-solid fa-gauge-high me-2"></i>Admin Dashboard</h2>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card p-4 text-center">
+                <i class="fa-solid fa-user-graduate fa-2x text-primary mb-2"></i>
+                <h3 class="fw-bold" th:text="${totalStudents}">0</h3>
+                <p class="text-muted mb-0">Total Students</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card p-4 text-center">
+                <i class="fa-solid fa-book fa-2x text-info mb-2"></i>
+                <h3 class="fw-bold" th:text="${totalCourses}">0</h3>
+                <p class="text-muted mb-0">Total Courses</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card p-4 text-center">
+                <i class="fa-solid fa-clipboard-check fa-2x text-success mb-2"></i>
+                <h3 class="fw-bold" th:text="${activeRegistrations}">0</h3>
+                <p class="text-muted mb-0">Active Registrations</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card p-4 text-center">
+                <i class="fa-solid fa-chair fa-2x text-warning mb-2"></i>
+                <h3 class="fw-bold" th:text="${availableSeats}">0</h3>
+                <p class="text-muted mb-0">Available Seats</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <a th:href="@{/admin/courses/add}" class="card p-4 text-decoration-none text-dark h-100">
+                <i class="fa-solid fa-plus-circle fa-2x text-primary mb-2"></i>
+                <h5>Add New Course</h5>
+                <p class="text-muted mb-0">Create a course with capacity and schedule.</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a th:href="@{/admin/students}" class="card p-4 text-decoration-none text-dark h-100">
+                <i class="fa-solid fa-users fa-2x text-primary mb-2"></i>
+                <h5>Manage Students</h5>
+                <p class="text-muted mb-0">View and remove student accounts.</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a th:href="@{/admin/registrations}" class="card p-4 text-decoration-none text-dark h-100">
+                <i class="fa-solid fa-list-check fa-2x text-primary mb-2"></i>
+                <h5>View Registrations</h5>
+                <p class="text-muted mb-0">Monitor and manage all course enrollments.</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

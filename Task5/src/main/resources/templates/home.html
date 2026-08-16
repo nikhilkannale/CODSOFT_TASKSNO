@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/head :: head('Home')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<section class="hero">
+    <div class="container text-center">
+        <h1 class="display-4 mb-3">Welcome to the Student Course Registration System</h1>
+        <p class="lead mb-4">Browse courses, register in a click, and manage your semester — all in one place.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a th:href="@{/register}" class="btn btn-accent btn-lg px-4">Get Started</a>
+            <a th:href="@{/login}" class="btn btn-outline-light btn-lg px-4">Login</a>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-6">
+            <div class="card stat-card p-4">
+                <i class="fa-solid fa-book-open fa-2x text-primary mb-2"></i>
+                <h2 class="fw-bold" th:text="${courseCount}">0</h2>
+                <p class="text-muted mb-0">Courses Offered</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card stat-card p-4">
+                <i class="fa-solid fa-chair fa-2x text-success mb-2"></i>
+                <h2 class="fw-bold" th:text="${availableSeats}">0</h2>
+                <p class="text-muted mb-0">Seats Currently Available</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5 g-4">
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <i class="fa-solid fa-magnifying-glass fa-2x text-primary mb-3"></i>
+                <h5>Search &amp; Filter</h5>
+                <p class="text-muted">Find courses by keyword, department, or semester in seconds.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <i class="fa-solid fa-clipboard-check fa-2x text-primary mb-3"></i>
+                <h5>Instant Registration</h5>
+                <p class="text-muted">Real-time seat availability with immediate confirmation.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4 h-100">
+                <i class="fa-solid fa-shield-halved fa-2x text-primary mb-3"></i>
+                <h5>Secure Accounts</h5>
+                <p class="text-muted">BCrypt-hashed passwords and role-based access control.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>

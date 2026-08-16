@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Manage Courses')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container my-5">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Manage Courses</h2>
+        <a th:href="@{/admin/courses/add}" class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i>Add Course</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle bg-white">
+            <thead>
+            <tr><th>Code</th><th>Title</th><th>Department</th><th>Semester</th><th>Seats</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${courses}">
+                <td th:text="${c.courseCode}"></td>
+                <td th:text="${c.title}"></td>
+                <td th:text="${c.department} ?: '-'"></td>
+                <td th:text="${c.semester} ?: '-'"></td>
+                <td>
+                    <span class="badge" th:classappend="${c.availableSeats > 0} ? 'badge-seats-open' : 'badge-seats-full'"
+                          th:text="${c.availableSeats} + ' / ' + ${c.capacity}"></span>
+                </td>
+                <td class="d-flex gap-2 flex-wrap">
+                    <a th:href="@{'/admin/courses/' + ${c.id} + '/edit'}" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-pen"></i></a>
+                    <form th:action="@{'/admin/courses/' + ${c.id} + '/capacity'}" method="post" class="d-inline">
+                        <input type="hidden" name="delta" value="1">
+                        <button type="submit" class="btn btn-sm btn-outline-success" title="Increase capacity"><i class="fa-solid fa-plus"></i></button>
+                    </form>
+                    <form th:action="@{'/admin/courses/' + ${c.id} + '/capacity'}" method="post" class="d-inline">
+                        <input type="hidden" name="delta" value="-1">
+                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Decrease capacity"><i class="fa-solid fa-minus"></i></button>
+                    </form>
+                    <form th:action="@{'/admin/courses/' + ${c.id} + '/delete'}" method="post" class="d-inline" data-confirm="Delete this course permanently?">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted" th:if="${#lists.isEmpty(courses)}">No courses yet. <a th:href="@{/admin/courses/add}">Add the first one</a>.</p>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>

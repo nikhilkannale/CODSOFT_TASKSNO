@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('My Courses')}"></head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+<div class="container my-5">
+    <div th:replace="~{fragments/alerts :: alerts}"></div>
+    <h2 class="fw-bold mb-4">My Course Registrations</h2>
+
+    <div class="table-responsive" th:if="${not #lists.isEmpty(enrollments)}">
+        <table class="table table-hover align-middle bg-white">
+            <thead>
+            <tr><th>Code</th><th>Title</th><th>Schedule</th><th>Enrolled On</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${enrollments}">
+                <td th:text="${e.course.courseCode}"></td>
+                <td th:text="${e.course.title}"></td>
+                <td th:text="${e.course.schedule}"></td>
+                <td th:text="${#temporals.format(e.enrollmentDate, 'dd MMM yyyy')}"></td>
+                <td>
+                    <span class="badge" th:classappend="${e.status.name() == 'ACTIVE'} ? 'bg-success' : 'bg-secondary'" th:text="${e.status}"></span>
+                </td>
+                <td>
+                    <form th:if="${e.status.name() == 'ACTIVE'}" th:action="@{'/student/enrollments/' + ${e.id} + '/drop'}" method="post"
+                          data-confirm="Are you sure you want to drop this course? Your seat will be released.">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-xmark me-1"></i>Drop</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="text-muted" th:if="${#lists.isEmpty(enrollments)}">You have no course registrations yet. <a th:href="@{/student/courses}">Browse courses</a> to get started.</p>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>
