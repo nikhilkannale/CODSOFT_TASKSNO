@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Manage Quizzes')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <p class="section-eyebrow mb-1">Admin</p>
+            <h1 class="mb-0">Manage quizzes</h1>
+        </div>
+        <button class="btn btn-amber" data-bs-toggle="modal" data-bs-target="#quizModal" onclick="openCreateModal()">+ New quiz</button>
+    </div>
+    <div id="alertBox"></div>
+
+    <div class="card-paper p-0 d-none" id="tableCard">
+        <table class="table mb-0 align-middle">
+            <thead>
+                <tr class="text-secondary small text-uppercase">
+                    <th class="ps-4">Title</th>
+                    <th>Duration</th>
+                    <th>Questions</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="quizBody"></tbody>
+        </table>
+    </div>
+    <div id="emptyState" class="empty-state d-none">
+        <h5>No quizzes yet</h5>
+        <p class="mb-0">Create your first quiz to get started.</p>
+    </div>
+</div>
+
+<!-- Create / edit quiz modal -->
+<div class="modal fade" id="quizModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quizModalTitle">New quiz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="quizForm">
+                <div class="modal-body">
+                    <div id="modalAlert"></div>
+                    <input type="hidden" id="quizId">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Duration (seconds)</label>
+                        <input type="number" min="10" class="form-control" id="durationInSeconds" required>
+                        <div class="form-text">E.g. 300 = 5 minutes.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-ink" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-ink">Save quiz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+let quizModal;
+document.addEventListener('DOMContentLoaded', () => {
+    quizModal = new bootstrap.Modal(document.getElementById('quizModal'));
+});
+
+function openCreateModal() {
+    document.getElementById('quizModalTitle').textContent = 'New quiz';
+    document.getElementById('quizForm').reset();
+    document.getElementById('quizId').value = '';
+    document.getElementById('modalAlert').innerHTML = '';
+}
+
+async function openEditModal(id) {
+    const quizzes = await Api.get('/api/admin/quizzes');
+    const q = quizzes.find(x => x.id === id);
+    if (!q) return;
+    document.getElementById('quizModalTitle').textContent = 'Edit quiz';
+    document.getElementById('quizId').value = q.id;
+    document.getElementById('title').value = q.title;
+    document.getElementById('description').value = q.description || '';
+    document.getElementById('durationInSeconds').value = q.durationInSeconds;
+    document.getElementById('modalAlert').innerHTML = '';
+    quizModal.show();
+}
+
+document.getElementById('quizForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('quizId').value;
+    const payload = {
+        title: document.getElementById('title').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        durationInSeconds: Number(document.getElementById('durationInSeconds').value),
+    };
+    try {
+        if (id) {
+            await Api.put(`/api/admin/quizzes/${id}`, payload);
+        } else {
+            await Api.post('/api/admin/quizzes', payload);
+        }
+        quizModal.hide();
+        loadQuizzes();
+    } catch (err) {
+        const details = err.details && err.details.length ? ': ' + err.details.join(', ') : '';
+        document.getElementById('modalAlert').innerHTML =
+            `<div class="alert alert-danger">${escapeHtml((err.message || 'Save failed') + details)}</div>`;
+    }
+});
+
+async function toggleActive(id, active) {
+    try {
+        await Api.patch(`/api/admin/quizzes/${id}/active`, { active });
+        loadQuizzes();
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not update quiz status');
+    }
+}
+
+async function deleteQuiz(id, title) {
+    if (!confirm(`Delete "${title}"? This also deletes all its questions and cannot be undone.`)) return;
+    try {
+        await Api.del(`/api/admin/quizzes/${id}`);
+        loadQuizzes();
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not delete quiz');
+    }
+}
+
+async function loadQuizzes() {
+    try {
+        const quizzes = await Api.get('/api/admin/quizzes');
+        if (!quizzes.length) {
+            document.getElementById('tableCard').classList.add('d-none');
+            document.getElementById('emptyState').classList.remove('d-none');
+            return;
+        }
+        document.getElementById('emptyState').classList.add('d-none');
+        document.getElementById('tableCard').classList.remove('d-none');
+        document.getElementById('quizBody').innerHTML = quizzes.map(q => `
+            <tr>
+                <td class="ps-4 fw-semibold">${escapeHtml(q.title)}</td>
+                <td class="text-mono">${formatSeconds(q.durationInSeconds)}</td>
+                <td>
+                    <a href="/admin/quizzes/${q.id}/questions" class="text-decoration-none">${q.questionCount} question${q.questionCount === 1 ? '' : 's'} &rarr;</a>
+                </td>
+                <td>
+                    <span class="badge ${q.active ? 'text-bg-success' : 'text-bg-secondary'}" style="cursor:pointer" onclick="toggleActive(${q.id}, ${!q.active})">
+                        ${q.active ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
+                <td class="text-end pe-4">
+                    <button class="btn btn-sm btn-outline-ink" onclick="openEditModal(${q.id})">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteQuiz(${q.id}, '${escapeHtml(q.title).replace(/'/g, "\\'")}')">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not load quizzes');
+    }
+}
+loadQuizzes();
+</script>
+</body>
+</html>

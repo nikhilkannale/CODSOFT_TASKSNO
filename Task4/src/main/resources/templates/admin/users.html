@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Users')}"></head>
+<body>
+<div th:replace="~{fragments/header :: navbar}"></div>
+
+<div class="container">
+    <p class="section-eyebrow mb-1">Admin</p>
+    <h1 class="mb-4">Registered users</h1>
+    <div id="alertBox"></div>
+
+    <div class="card-paper p-0 d-none" id="tableCard">
+        <table class="table mb-0 align-middle">
+            <thead>
+                <tr class="text-secondary small text-uppercase">
+                    <th class="ps-4">Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                    <th class="text-end pe-4">Status</th>
+                </tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+        </table>
+    </div>
+    <div id="emptyState" class="empty-state d-none">
+        <h5>No users registered yet</h5>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+async function toggleStatus(id, enabled) {
+    try {
+        await Api.patch(`/api/admin/users/${id}/status`, { enabled });
+        loadUsers();
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not update user status');
+    }
+}
+
+async function loadUsers() {
+    try {
+        const users = await Api.get('/api/admin/users');
+        if (!users.length) {
+            document.getElementById('emptyState').classList.remove('d-none');
+            return;
+        }
+        document.getElementById('tableCard').classList.remove('d-none');
+        document.getElementById('usersBody').innerHTML = users.map(u => `
+            <tr>
+                <td class="ps-4 fw-semibold">${escapeHtml(u.fullName)}</td>
+                <td class="text-secondary">${escapeHtml(u.email)}</td>
+                <td><span class="badge ${u.role === 'ADMIN' ? 'text-bg-dark' : 'text-bg-light border'}">${u.role}</span></td>
+                <td class="text-secondary small">${formatDate(u.createdAt)}</td>
+                <td class="text-end pe-4">
+                    <span class="badge ${u.enabled ? 'text-bg-success' : 'text-bg-secondary'}" style="cursor:pointer" onclick="toggleStatus(${u.id}, ${!u.enabled})">
+                        ${u.enabled ? 'Active' : 'Disabled'}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        showAlert('alertBox', err.message || 'Could not load users');
+    }
+}
+loadUsers();
+</script>
+</body>
+</html>
