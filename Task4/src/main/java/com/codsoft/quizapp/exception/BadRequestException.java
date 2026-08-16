@@ -1,7 +1,0 @@
-package com.codsoft.quizapp.exception;
-
-public class BadRequestException extends RuntimeException {
-    public BadRequestException(String message) {
-        super(message);
-    }
-}
