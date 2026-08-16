@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: scrs-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: scrs_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - scrs_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: scrs-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/scrs_db
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      JWT_SECRET: ChangeThisSecretKeyInProductionEnvironmentVariableAtLeast256BitsLong123456
+      JWT_EXPIRATION_MS: 86400000
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - scrs_uploads:/app/uploads
+
+volumes:
+  scrs_pgdata:
+  scrs_uploads:
